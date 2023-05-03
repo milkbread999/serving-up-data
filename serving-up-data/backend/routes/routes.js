@@ -1,16 +1,18 @@
 const express = require('express')
 const router = express.Router()
-const articleSchema = require('../models/Article.js')
+const [articleSchema, commentSchema] = require('../models/Article.js')
+
 
 router.get('/', (req, res) => {
     articleSchema.find({
     })
     //'then' happens if find is succesful
+    .populate('comments') // populate the comments field
     .then(articles => {
       console.log("succesfully got entire db!")
       console.log(articles)
       res.json(articles)
-    })
+    }) 
     //if theres an error, 'catch' happens instead
     .catch(err => {
       console.error(err)
@@ -35,6 +37,7 @@ router.get('/:id', (req, res) => {
 router.post('/add', (req, res) => {
     articleSchema.create(req.body)
 
+
     .then(article => {
       console.log("succesfully added name!")
       console.log(article)
@@ -43,6 +46,8 @@ router.post('/add', (req, res) => {
     .catch(err => {
       console.error(err)
       console.log('POST ERROR')
+      res.send(err)
+
     })
     // TODO:
     // Create:
@@ -50,6 +55,57 @@ router.post('/add', (req, res) => {
     // https://mongoosejs.com/docs/api/model.html#model_Model.create
 
     // be sure to add a .then() and .catch() after
+})
+
+router.post('/addcomment/:articleName', (req, res) => {
+  commentSchema.create(req.body)
+  .then(comment=>{
+    articleSchema.findOne({name: req.params.articleName})
+    .then(article =>{
+      console.log(article)
+      article.comments.push(comment)
+      article.save()
+      .then(updatedArticle=>{
+        res.send(updatedArticle)
+      })
+
+      
+    })
+  }) .catch(err => {
+        console.error(err)
+        console.log('POST ERROR')
+        res.send(err)
+      })
+  
+
+  // .then(article =>{
+    
+  //     .then(comment => {
+  //     articleSchema.findOneAndUpdate(
+  //       {comments: (comment)}
+  //     )
+  //     console.log("succesfully added name!")
+  //     console.log(comment)
+  //     console.log(article)
+  //     res.send(comment)
+
+  //     article.comments.push(comment)
+ 
+      
+  //   })
+  //   .catch(err => {
+  //     console.error(err)
+  //     console.log('POST ERROR')
+  //     res.send(err)
+  //   })
+
+  // })
+  // TODO:
+  // Create:
+  // Create a Model using our articleSchema Model
+  // https://mongoosejs.com/docs/api/model.html#model_Model.create
+
+  // be sure to add a .then() and .catch() after
 })
 
 //TODO: change '/' below to be by id
@@ -83,7 +139,6 @@ router.delete('/removexo', (req, res) => {
   })
   .catch(err => {
     console.error(err)
-    console.log('THIS ERROR IS UGLIER THAN UR RECEDING HAIRLINE <3333')
   })
     // TODO:
     // Delete:

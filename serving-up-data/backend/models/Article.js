@@ -3,17 +3,22 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // create a schema
-// const commentSchema = new Schema({
-//     name: String,
+const commentSchema = new Schema({
+    name: String,
 
-//     datePosted:{
-//         type:String,
-//     },
+    articleName: {
+        type: String,
+        required:true,
+    },
 
-//     content:{
-//         type: String,
-//     }
-// })
+    datePosted:{
+        type: String,
+    },
+
+    content:{
+        type: String,
+    }
+})
 const articleSchema = new Schema({
     // Simple declaration of datatype that will be used:
     name: String,
@@ -40,11 +45,10 @@ const articleSchema = new Schema({
         type: String,
     },
 
+    comments: [commentSchema]
     // comments: {
-    //     type:String, 
-    //     comment: [commentSchema]
+    //     type: Array,
     // }
 });
 
-module.exports = mongoose.model("article", articleSchema);
-// module.exports = mongoose.model("comment", commentSchema);
+module.exports = [mongoose.model("article", articleSchema), mongoose.model("comment", commentSchema)];
